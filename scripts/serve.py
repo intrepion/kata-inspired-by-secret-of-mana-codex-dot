@@ -4,7 +4,6 @@ from pathlib import Path
 import shutil
 import socket
 import subprocess
-import tempfile
 import time
 
 root = Path(__file__).resolve().parent.parent
@@ -16,7 +15,7 @@ if not (root / 'dist' / 'index.html').exists():
 with socket.socket() as probe:
     if probe.connect_ex(('127.0.0.1', 5213)) == 0:
         raise SystemExit('Port 5213 already has a listener. Stop only this game’s recorded process before restarting.')
-log_path = Path(tempfile.gettempdir()) / 'wildheart-preview.log'
+log_path = Path('/tmp/wildheart-preview.log')
 with log_path.open('ab') as log:
     process = subprocess.Popen(
         [node, str(root / 'node_modules/vite/bin/vite.js'), 'preview', '--host', '127.0.0.1', '--port', '5213', '--strictPort'],

@@ -11,4 +11,4 @@ Initial implementation `28aed21`: title Begin could overwrite a save without con
 ## Browser findings
 On-screen direction taps could be too short to advance a simulation tick. Added short tap-to-walk destinations while preserving continuous hold movement. Keyboard movement could resume a stale destination; movement and party switching now cancel it. Both fixes were verified using actual Chrome controls. Narrow heading spacing was corrected.
 
-Final targeted re-review is recorded in the handoff. No known unresolved high or medium functional findings remain.
+Final targeted independent Spec and Standards re-reviews at `b7e3f0a` found no remaining important findings. Both independently ran all 16 passing domain tests; the Spec reviewer also ran the typecheck. Subsequent housekeeping aligns the detached server log path with the documented `/tmp/wildheart-preview.log`. No known unresolved high or medium functional findings remain.
