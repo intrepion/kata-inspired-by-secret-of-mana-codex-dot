@@ -1,0 +1,8 @@
+src/domain.ts 158ms
+src/main.ts 65ms
+src/render.ts 40ms
+src/style.css 77ms
+tests/domain.test.ts 27ms
+index.html 19ms
+package.json 12ms
+tsconfig.json 1ms

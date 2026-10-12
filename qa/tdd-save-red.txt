@@ -1,0 +1,121 @@
+
+> lanterns-of-the-wildheart@1.0.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ one second of fixed-step movement travels 180 units and diagonal movement is normalized (2.050375ms)
+✔ a melee strike damages once, cannot reach distant enemies, and requires recovery (0.363334ms)
+✔ solid terrain and boundaries stop fixed movement without tunnelling (2.110875ms)
+✔ melee range excludes distant targets and never damages a dead foe twice (0.38825ms)
+✔ invulnerability prevents repeat hits, then expires, and telegraphs deal damage only after warning (0.757875ms)
+✔ every element respects range, mana and cooldown and applies its complementary effect (0.203666ms)
+✔ falling switches to a living member; healing revives; total defeat freezes until retry (0.239125ms)
+✔ waystones replenish resources without flasks and persist checkpoints (0.163125ms)
+✔ gates enforce prerequisite victories and backtracking remains open (0.098166ms)
+✔ companions navigate around terrain and recover from separated paths (19.467708ms)
+✔ save roundtrips observable progression and rejects malformed state (1.485125ms)
+✔ all routes and bosses are completable with legitimate melee equipment; rewards never duplicate (8.612542ms)
+✖ contradictory saves cannot remove mandatory enemies, bypass gates or suppress boss rewards (2.923958ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 12
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 252.602917
+
+✖ failing tests:
+
+test at tests/domain.test.ts:1:6022
+✖ contradictory saves cannot remove mandatory enemies, bypass gates or suppress boss rewards (2.923958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   area: 1,
+  +   checkpoint: 0,
+  +   cleared: [],
+  +   effects: [],
+  +   enemies: [],
+  +   flasks: 3,
+  +   leader: 0,
+  +   message: 'Rowan: These vines are frightened, not cruel. We can loosen the hush around their guardian.',
+  +   messageTime: 3,
+  +   mode: 'play',
+  +   party: [
+  +     {
+  +       color: '#ffd489',
+  +       element: 'ember',
+  +       facing: {
+  +         x: 1,
+  +         y: 0
+  +       },
+  +       hp: 120,
+  +       invulnerable: 1,
+  +       maxHp: 120,
+  +       mp: 36,
+  +       name: 'Rowan',
+  +       recovery: 0,
+  +       spellCooldown: 0,
+  +       strike: 0,
+  +       x: 120,
+  +       y: 288
+  +     },
+  +     {
+  +       color: '#91e0ed',
+  +       element: 'tide',
+  +       facing: {
+  +         x: 1,
+  +         y: 0
+  +       },
+  +       hp: 120,
+  +       invulnerable: 1,
+  +       maxHp: 120,
+  +       mp: 36,
+  +       name: 'Neri',
+  +       recovery: 0,
+  +       spellCooldown: 0,
+  +       strike: 0,
+  +       x: 95,
+  +       y: 312
+  +     },
+  +     {
+  +       color: '#d0b8fa',
+  +       element: 'gale',
+  +       facing: {
+  +         x: 1,
+  +         y: 0
+  +       },
+  +       hp: 120,
+  +       invulnerable: 1,
+  +       maxHp: 120,
+  +       mp: 36,
+  +       name: 'Luma',
+  +       recovery: 0,
+  +       spellCooldown: 0,
+  +       strike: 0,
+  +       x: 70,
+  +       y: 336
+  +     }
+  +   ],
+  +   rewarded: [],
+  +   time: 0,
+  +   version: 1,
+  +   weapon: 1
+  + }
+  - undefined
+  
+      at TestContext.<anonymous> (/Users/intrepion/Documents/Codex/2026-10-12/task-3/kata-inspired-by-secret-of-mana-codex-dot/tests/domain.test.ts:56:45)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { version: 1, area: 1, leader: 0, party: [ [Object], [Object], [Object] ], enemies: [], cleared: [], rewarded: [], flasks: 3, weapon: 1, checkpoint: 0, mode: 'play', time: 0, message: 'Rowan: These vines are frightened, not cruel. We can loosen the hush around their guardian.', messageTime: 3, effects: [] },
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

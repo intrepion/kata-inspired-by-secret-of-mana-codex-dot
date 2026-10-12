@@ -1,0 +1,50 @@
+
+> lanterns-of-the-wildheart@1.0.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ one second of fixed-step movement travels 180 units and diagonal movement is normalized (1.5865ms)
+✔ a melee strike damages once, cannot reach distant enemies, and requires recovery (0.303333ms)
+✔ solid terrain and boundaries stop fixed movement without tunnelling (2.834ms)
+✔ melee range excludes distant targets and never damages a dead foe twice (1.340625ms)
+✔ invulnerability prevents repeat hits, then expires, and telegraphs deal damage only after warning (0.916959ms)
+✔ every element respects range, mana and cooldown and applies its complementary effect (0.201125ms)
+✔ falling switches to a living member; healing revives; total defeat freezes until retry (0.178584ms)
+✔ waystones replenish resources without flasks and persist checkpoints (0.108167ms)
+✔ gates enforce prerequisite victories and backtracking remains open (0.084208ms)
+✔ companions navigate around terrain and recover from separated paths (20.004292ms)
+✔ save roundtrips observable progression and rejects malformed state (0.825833ms)
+✔ all routes and bosses are completable with legitimate melee equipment; rewards never duplicate (8.554125ms)
+✔ contradictory saves cannot remove mandatory enemies, bypass gates or suppress boss rewards (0.919791ms)
+✔ backtracking and saves retain defeated enemies and wounds in visited areas (0.431625ms)
+✖ Follow orders keep companions close without attacking; Engage resumes their combat (2.737584ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 14
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 262.804792
+
+✖ failing tests:
+
+test at tests/domain.test.ts:1:7000
+✖ Follow orders keep companions close without attacking; Engage resumes their combat (2.737584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 46
+  
+      at TestContext.<anonymous> (/Users/intrepion/Documents/Codex/2026-10-12/task-3/kata-inspired-by-secret-of-mana-codex-dot/tests/domain.test.ts:279:170)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 46,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
