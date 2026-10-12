@@ -626,6 +626,8 @@ function validEncounter(v: Game, area: number, enemies: Enemy[]): boolean {
       !Number.isFinite(e.hp) ||
       e.hp < 0 ||
       e.hp > match.maxHp ||
+      !Number.isFinite(e.x) ||
+      !Number.isFinite(e.y) ||
       !passable(area, e) ||
       !Number.isFinite(e.timer) ||
       e.timer < 0 ||
@@ -704,6 +706,8 @@ export function restore(raw: string): Game | undefined {
         !finite(p.mp) ||
         p.mp < 0 ||
         p.mp > 36 ||
+        !finite(p.x) ||
+        !finite(p.y) ||
         !passable(v.area, p) ||
         !finite(p.recovery) ||
         p.recovery < 0 ||

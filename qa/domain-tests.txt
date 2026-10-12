@@ -2,25 +2,27 @@
 > lanterns-of-the-wildheart@1.0.0 test
 > node --import tsx --test tests/*.test.ts
 
-✔ one second of fixed-step movement travels 180 units and diagonal movement is normalized (4.505792ms)
-✔ a melee strike damages once, cannot reach distant enemies, and requires recovery (0.307125ms)
-✔ solid terrain and boundaries stop fixed movement without tunnelling (1.471583ms)
-✔ melee range excludes distant targets and never damages a dead foe twice (0.25025ms)
-✔ invulnerability prevents repeat hits, then expires, and telegraphs deal damage only after warning (0.887125ms)
-✔ every element respects range, mana and cooldown and applies its complementary effect (0.272083ms)
-✔ falling switches to a living member; healing revives; total defeat freezes until retry (0.183083ms)
-✔ waystones replenish resources without flasks and persist checkpoints (0.116625ms)
-✔ gates enforce prerequisite victories and backtracking remains open (0.084208ms)
-✔ companions navigate around terrain and recover from separated paths (20.356167ms)
-✔ save roundtrips observable progression and rejects malformed state (0.84025ms)
-✔ all routes and bosses are completable with legitimate melee equipment; rewards never duplicate (9.301416ms)
-✔ contradictory saves cannot remove mandatory enemies, bypass gates or suppress boss rewards (0.422041ms)
-✔ backtracking and saves retain defeated enemies and wounds in visited areas (0.1635ms)
-ℹ tests 14
+✔ one second of fixed-step movement travels 180 units and diagonal movement is normalized (6.467167ms)
+✔ a melee strike damages once, cannot reach distant enemies, and requires recovery (0.48375ms)
+✔ solid terrain and boundaries stop fixed movement without tunnelling (2.063083ms)
+✔ melee range excludes distant targets and never damages a dead foe twice (0.291334ms)
+✔ invulnerability prevents repeat hits, then expires, and telegraphs deal damage only after warning (1.171959ms)
+✔ every element respects range, mana and cooldown and applies its complementary effect (0.328292ms)
+✔ falling switches to a living member; healing revives; total defeat freezes until retry (0.280625ms)
+✔ waystones replenish resources without flasks and persist checkpoints (0.172209ms)
+✔ gates enforce prerequisite victories and backtracking remains open (0.123125ms)
+✔ companions navigate around terrain and recover from separated paths (34.816625ms)
+✔ save roundtrips observable progression and rejects malformed state (1.252875ms)
+✔ all routes and bosses are completable with legitimate melee equipment; rewards never duplicate (16.581167ms)
+✔ contradictory saves cannot remove mandatory enemies, bypass gates or suppress boss rewards (0.906666ms)
+✔ backtracking and saves retain defeated enemies and wounds in visited areas (0.730084ms)
+✔ Follow orders keep companions close without attacking; Engage resumes their combat (0.734209ms)
+✔ malformed nonnumeric coordinates are rejected instead of breaking movement (0.334125ms)
+ℹ tests 16
 ℹ suites 0
-ℹ pass 14
+ℹ pass 16
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 218.103458
+ℹ duration_ms 321.461958

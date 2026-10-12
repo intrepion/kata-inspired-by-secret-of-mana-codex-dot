@@ -29,7 +29,7 @@ app.innerHTML = `
 <div id="party" class="party" aria-label="Party status"></div>
 <div class="actions"><div class="action-main"><button id="strike" class="action primary"><span>⚔</span> Strike <kbd>SPACE</kbd></button><button id="magic" class="action"><span>✦</span> Magic <kbd>F</kbd></button><button id="interact" class="action"><span>◇</span> Interact <kbd>E</kbd></button><button id="commands" class="action"><span>☷</span> Commands <kbd>ESC</kbd></button></div><div class="touch-move" aria-label="Movement"><button data-move="0,-1" aria-label="Move north">↑</button><button data-move="-1,0" aria-label="Move west">←</button><button data-move="0,1" aria-label="Move south">↓</button><button data-move="1,0" aria-label="Move east">→</button></div></div>
 <p id="narration" class="narration" aria-live="polite"></p></section>
-<aside><div class="quest-card"><p class="eyebrow">YOUR JOURNEY</p><h2>A forest,<br>waiting to bloom.</h2><p id="objective"></p><div class="embers" id="embers"></div><div id="route" class="route"></div><div class="quest-note"><span>✧</span><p>Waystones restore health, mana and flasks. Return whenever the road grows heavy.</p></div></div><div class="field-notes"><p class="eyebrow">FIELD NOTES</p><div><b>01</b><p><strong>A rhythm, not a race.</strong>Let your recovery ring fill before the next strike.</p></div><div><b>02</b><p><strong>Watch the ground.</strong>Step out of amber warning circles before they burst.</p></div><div><b>03</b><p><strong>Three lights together.</strong>Switch with Q. Your companions follow and fight beside you.</p></div><button id="help" class="text-button">Read the traveler's guide ↗</button></div></aside></div>
+<aside><div class="quest-card"><p class="eyebrow">YOUR JOURNEY</p><h2>A forest, <br>waiting to bloom.</h2><p id="objective"></p><div class="embers" id="embers"></div><div id="route" class="route"></div><div class="quest-note"><span>✧</span><p>Waystones restore health, mana and flasks. Return whenever the road grows heavy.</p></div></div><div class="field-notes"><p class="eyebrow">FIELD NOTES</p><div><b>01</b><p><strong>A rhythm, not a race.</strong>Let your recovery ring fill before the next strike.</p></div><div><b>02</b><p><strong>Watch the ground.</strong>Step out of amber warning circles before they burst.</p></div><div><b>03</b><p><strong>Three lights together.</strong>Switch with Q. Your companions follow and fight beside you.</p></div><button id="help" class="text-button">Read the traveler's guide ↗</button></div></aside></div>
 <footer><span>HANDCRAFTED WORLDS · ORIGINAL CHARACTERS</span><span>Save locally. Adventure freely. <button id="motion" class="text-button">Reduced motion: off</button></span></footer></main>`;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -104,7 +104,7 @@ function open(kind: string) {
   }
   if (kind === "guide") {
     title = "A traveler’s guide";
-    body = `<div class="guide-grid"><p><b>Move</b>WASD / arrows, click the field, or hold direction buttons.</p><p><b>Strike · Space / Z</b>Hold for repeated attacks. Recovery takes 0.65 seconds. Be within 66 steps.</p><p><b>Magic · F / X</b>Targets the nearest foe within 250 steps. Ember burns; Tide slows; Gale interrupts. Costs 8 mana, recharges in 1.8 seconds.</p><p><b>Party · Q / 1–3</b>Switch your leader. Companions follow and fight. Fallen travelers are skipped.</p><p><b>Interact · E / Enter</b>Use the waystone or an arch when nearby. Heal and revive with H or a sunflask.</p><p><b>Rest & save</b>Waystones replenish everything. Mana also regenerates. Defeat returns you to your checkpoint.</p></div><p class="guide-tip">Calm each guardian to unlock the eastern arch. Amber circles warn before a strike. Keep moving!</p>`;
+    body = `<div class="guide-grid"><p><b>Move</b>WASD / arrows, click the field, or tap / hold direction buttons.</p><p><b>Strike · Space / Z</b>Hold for repeated attacks. Recovery takes 0.65 seconds. Be within 66 steps.</p><p><b>Magic · F / X</b>Targets the nearest foe within 250 steps. Ember burns; Tide slows; Gale interrupts. Costs 8 mana, recharges in 1.8 seconds.</p><p><b>Party · Q / 1–3</b>Switch your leader. Companions follow and fight. Fallen travelers are skipped.</p><p><b>Interact · E / Enter</b>Use the waystone or an arch when nearby. Heal and revive with H or a sunflask.</p><p><b>Rest & save</b>Waystones replenish everything. Mana also regenerates. Defeat returns you to your checkpoint.</p></div><p class="guide-tip">Calm each guardian to unlock the eastern arch. Amber circles warn before a strike. Keep moving!</p>`;
     buttons = '<button data-do="close" class="gold">Ready to travel →</button>';
   }
   if (kind === "commands") {
@@ -139,7 +139,16 @@ function open(kind: string) {
   o.querySelector<HTMLButtonElement>("button")?.focus();
   update();
 }
-function close() {
+function close(authorizedStart = false) {
+  if (!authorizedStart && menu === "title") return;
+  if (
+    !authorizedStart &&
+    ((menu === "reset" && resetOrigin === "title") ||
+      (menu === "guide" && guideOrigin === "title"))
+  ) {
+    open("title");
+    return;
+  }
   if (game.mode !== "play") {
     open(game.mode);
     return;
@@ -159,12 +168,12 @@ function action(kind: string) {
     game = createGame();
     lastSaveSignature = "";
     save();
-    close();
+    close(true);
   } else if (kind === "continue") {
     const g = saved();
     if (g) {
       game = g;
-      close();
+      close(true);
     }
   } else if (kind === "close") {
     if (
@@ -323,15 +332,28 @@ canvas.addEventListener("pointerdown", (e) => {
 $("strike").addEventListener("pointerdown", () => {
   if (!paused) heldStrike = true;
 });
-document.querySelectorAll<HTMLButtonElement>("[data-move]").forEach((b) =>
-  b.addEventListener("pointerdown", (e) => {
-    if (paused) return;
-    b.setPointerCapture(e.pointerId);
-    const [dx, dy] = b.dataset.move!.split(",").map(Number);
-    pointerMove = { dx, dy };
-    target = undefined;
-  }),
-);
+let moveStartedAt = 0;
+document
+  .querySelectorAll<HTMLButtonElement>("[data-move]")
+  .forEach((button) => {
+    button.addEventListener("pointerdown", (event) => {
+      if (paused) return;
+      button.setPointerCapture(event.pointerId);
+      const [dx, dy] = button.dataset.move!.split(",").map(Number);
+      pointerMove = { dx, dy };
+      target = undefined;
+      moveStartedAt = game.time;
+    });
+    button.addEventListener("click", () => {
+      if (paused || game.time - moveStartedAt >= 0.12) return;
+      const [dx, dy] = button.dataset.move!.split(",").map(Number),
+        leader = game.party[game.leader];
+      target = {
+        x: Math.max(46, Math.min(914, leader.x + dx * 48)),
+        y: Math.max(66, Math.min(530, leader.y + dy * 48)),
+      };
+    });
+  });
 window.addEventListener("pointerup", () => {
   pointerMove = { dx: 0, dy: 0 };
   heldStrike = false;
@@ -372,6 +394,23 @@ window.addEventListener("keydown", (e) => {
   )
     e.preventDefault();
   keys.add(key);
+  if (
+    [
+      "w",
+      "a",
+      "s",
+      "d",
+      "arrowup",
+      "arrowdown",
+      "arrowleft",
+      "arrowright",
+      "q",
+      "1",
+      "2",
+      "3",
+    ].includes(key)
+  )
+    target = undefined;
   if (e.repeat) return;
   if (key === "f" || key === "x") cast(game);
   if (key === "q") switchParty(game);

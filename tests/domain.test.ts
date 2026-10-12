@@ -290,3 +290,14 @@ test("Follow orders keep companions close without attacking; Engage resumes thei
   ticks(g, 40);
   assert.ok(e.hp < e.maxHp);
 });
+test("malformed nonnumeric coordinates are rejected instead of breaking movement", () => {
+  const g = createGame();
+  const v = JSON.parse(serialize(g));
+  v.party[0].x = "180";
+  assert.equal(restore(JSON.stringify(v)), undefined);
+  const c = createGame();
+  enterArea(c, 1);
+  const bad = JSON.parse(serialize(c));
+  bad.enemies[0].y = "288";
+  assert.equal(restore(JSON.stringify(bad)), undefined);
+});

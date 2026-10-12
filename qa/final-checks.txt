@@ -1,0 +1,45 @@
+
+> lanterns-of-the-wildheart@1.0.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ one second of fixed-step movement travels 180 units and diagonal movement is normalized (3.700459ms)
+✔ a melee strike damages once, cannot reach distant enemies, and requires recovery (0.538916ms)
+✔ solid terrain and boundaries stop fixed movement without tunnelling (3.337833ms)
+✔ melee range excludes distant targets and never damages a dead foe twice (0.90325ms)
+✔ invulnerability prevents repeat hits, then expires, and telegraphs deal damage only after warning (1.814833ms)
+✔ every element respects range, mana and cooldown and applies its complementary effect (0.39525ms)
+✔ falling switches to a living member; healing revives; total defeat freezes until retry (0.324375ms)
+✔ waystones replenish resources without flasks and persist checkpoints (0.209917ms)
+✔ gates enforce prerequisite victories and backtracking remains open (0.153292ms)
+✔ companions navigate around terrain and recover from separated paths (35.142041ms)
+✔ save roundtrips observable progression and rejects malformed state (1.577334ms)
+✔ all routes and bosses are completable with legitimate melee equipment; rewards never duplicate (16.810541ms)
+✔ contradictory saves cannot remove mandatory enemies, bypass gates or suppress boss rewards (0.745791ms)
+✔ backtracking and saves retain defeated enemies and wounds in visited areas (0.250708ms)
+✔ Follow orders keep companions close without attacking; Engage resumes their combat (0.601917ms)
+✔ malformed nonnumeric coordinates are rejected instead of breaking movement (0.377459ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 261.809417
+
+> lanterns-of-the-wildheart@1.0.0 typecheck
+> tsc --noEmit
+
+
+> lanterns-of-the-wildheart@1.0.0 build
+> tsc --noEmit && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 6 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                  0.64 kB │ gzip:  0.38 kB
+dist/assets/index-C3LosPOU.css  12.67 kB │ gzip:  3.60 kB
+dist/assets/index-BAuS7DOF.js   35.75 kB │ gzip: 14.37 kB
+✓ built in 352ms
