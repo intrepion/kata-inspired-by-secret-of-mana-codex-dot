@@ -1,0 +1,2 @@
+# Persistent victories and replenishing waystones
+Regional victories persist and improve weapons once, while checkpoint retry replenishes the whole party and respawns only undefeated foes. Finite mana or healing could strand a player behind a required boss; regenerating mana, repeatable waystones and universally effective melee preserve recovery while consumable flasks remain useful during combat.
