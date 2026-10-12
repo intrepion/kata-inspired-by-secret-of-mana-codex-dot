@@ -1,0 +1,29 @@
+
+> lanterns-of-the-wildheart@1.0.0 test
+> node --import tsx --test tests/*.test.ts
+
+/Users/intrepion/Documents/Codex/2026-10-12/task-3/kata-inspired-by-secret-of-mana-codex-dot/tests/domain.test.ts:12
+import {attack, enterArea, cast, switchParty, heal, retry, interact, serialize, restore, damageTraveler, passable, distance} from '../src/domain.ts';
+        ^
+SyntaxError: The requested module '../src/domain.ts' does not provide an export named 'attack'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:455:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:553:5)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.20.0
+✖ tests/domain.test.ts (137.197583ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.812833
+
+✖ failing tests:
+
+test at tests/domain.test.ts:1:1
+✖ tests/domain.test.ts (137.197583ms)
+  'test failed'

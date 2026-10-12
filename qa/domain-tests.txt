@@ -1,0 +1,24 @@
+
+> lanterns-of-the-wildheart@1.0.0 test
+> node --import tsx --test tests/*.test.ts
+
+✔ one second of fixed-step movement travels 180 units and diagonal movement is normalized (2.016291ms)
+✔ a melee strike damages once, cannot reach distant enemies, and requires recovery (0.389167ms)
+✔ solid terrain and boundaries stop fixed movement without tunnelling (1.650667ms)
+✔ melee range excludes distant targets and never damages a dead foe twice (0.233167ms)
+✔ invulnerability prevents repeat hits, then expires, and telegraphs deal damage only after warning (0.752625ms)
+✔ every element respects range, mana and cooldown and applies its complementary effect (0.213459ms)
+✔ falling switches to a living member; healing revives; total defeat freezes until retry (0.168ms)
+✔ waystones replenish resources without flasks and persist checkpoints (0.114042ms)
+✔ gates enforce prerequisite victories and backtracking remains open (0.084208ms)
+✔ companions navigate around terrain and recover from separated paths (18.03775ms)
+✔ save roundtrips observable progression and rejects malformed state (0.504875ms)
+✔ all routes and bosses are completable with legitimate melee equipment; rewards never duplicate (8.397416ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 230.673667
