@@ -1008,3 +1008,19 @@ footer .text-button {
     scroll-behavior: auto !important;
   }
 }
+
+.bar.power {
+  height: 5px;
+  margin-top: 5px;
+  background: #283f3d;
+}
+.bar.power i {
+  background: #e4c477;
+}
+.bar.power.charging i {
+  background: #c9a6ee;
+}
+.recovery {
+  font-size: 9px;
+  line-height: 1.4;
+}

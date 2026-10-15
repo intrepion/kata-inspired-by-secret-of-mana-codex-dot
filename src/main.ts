@@ -7,6 +7,9 @@ import {
   createGame,
   step,
   attack,
+  attackPower,
+  cancelAttack,
+  setAttackHeld,
   cast,
   switchParty,
   heal,
@@ -29,7 +32,7 @@ app.innerHTML = `
 <div id="party" class="party" aria-label="Party status"></div>
 <div class="actions"><div class="action-main"><button id="strike" class="action primary"><span>⚔</span> Strike <kbd>SPACE</kbd></button><button id="magic" class="action"><span>✦</span> Magic <kbd>F</kbd></button><button id="interact" class="action"><span>◇</span> Interact <kbd>E</kbd></button><button id="commands" class="action"><span>☷</span> Commands <kbd>ESC</kbd></button></div><div class="touch-move" aria-label="Movement"><button data-move="0,-1" aria-label="Move north">↑</button><button data-move="-1,0" aria-label="Move west">←</button><button data-move="0,1" aria-label="Move south">↓</button><button data-move="1,0" aria-label="Move east">→</button></div></div>
 <p id="narration" class="narration" aria-live="polite"></p></section>
-<aside><div class="quest-card"><p class="eyebrow">YOUR JOURNEY</p><h2>A forest, <br>waiting to bloom.</h2><p id="objective"></p><div class="embers" id="embers"></div><div id="route" class="route"></div><div class="quest-note"><span>✧</span><p>Waystones restore health, mana and flasks. Return whenever the road grows heavy.</p></div></div><div class="field-notes"><p class="eyebrow">FIELD NOTES</p><div><b>01</b><p><strong>A rhythm, not a race.</strong>Let your recovery ring fill before the next strike.</p></div><div><b>02</b><p><strong>Watch the ground.</strong>Step out of amber warning circles before they burst.</p></div><div><b>03</b><p><strong>Three lights together.</strong>Switch with Q. Your companions follow and fight beside you.</p></div><button id="help" class="text-button">Read the traveler's guide ↗</button></div></aside></div>
+<aside><div class="quest-card"><p class="eyebrow">YOUR JOURNEY</p><h2>A forest, <br>waiting to bloom.</h2><p id="objective"></p><div class="embers" id="embers"></div><div id="route" class="route"></div><div class="quest-note"><span>✧</span><p>Waystones restore health, mana and flasks. Return whenever the road grows heavy.</p></div></div><div class="field-notes"><p class="eyebrow">FIELD NOTES</p><div><b>01</b><p><strong>A rhythm, not a race.</strong>Face your foe. Recover to 100%, or hold and release a charged strike.</p></div><div><b>02</b><p><strong>Watch the ground.</strong>Step out of amber warning circles before they burst.</p></div><div><b>03</b><p><strong>Three lights together.</strong>Switch with Q. Your companions follow and fight beside you.</p></div><button id="help" class="text-button">Read the traveler's guide ↗</button></div></aside></div>
 <footer><span>HANDCRAFTED WORLDS · ORIGINAL CHARACTERS</span><span>Save locally. Adventure freely. <button id="motion" class="text-button">Reduced motion: off</button></span></footer></main>`;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -41,7 +44,7 @@ let game = createGame(),
   target: Point | undefined,
   keys = new Set<string>(),
   pointerMove = { dx: 0, dy: 0 },
-  heldStrike = false;
+  strikePointers = new Set<number>();
 let reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let audio: AudioContext | undefined,
   sound = false,
@@ -59,7 +62,9 @@ const objective = () =>
 function clearInput() {
   keys.clear();
   pointerMove = { dx: 0, dy: 0 };
-  heldStrike = false;
+  strikePointers.clear();
+  cancelAttack(game);
+  setAttackHeld(game, false);
   target = undefined;
 }
 function save() {
@@ -104,7 +109,7 @@ function open(kind: string) {
   }
   if (kind === "guide") {
     title = "A traveler’s guide";
-    body = `<div class="guide-grid"><p><b>Move</b>WASD / arrows, click the field, or tap / hold direction buttons.</p><p><b>Strike · Space / Z</b>Hold for repeated attacks. Recovery takes 0.65 seconds. Be within 66 steps.</p><p><b>Magic · F / X</b>Targets the nearest foe within 250 steps. Ember burns; Tide slows; Gale interrupts. Costs 8 mana, recharges in 1.8 seconds.</p><p><b>Party · Q / 1–3</b>Switch your leader. Companions follow and fight. Fallen travelers are skipped.</p><p><b>Interact · E / Enter</b>Use the waystone or an arch when nearby. Heal and revive with H or a sunflask.</p><p><b>Rest & save</b>Waystones replenish everything. Mana also regenerates. Defeat returns you to your checkpoint.</p></div><p class="guide-tip">Calm each guardian to unlock the eastern arch. Amber circles warn before a strike. Keep moving!</p>`;
+    body = `<div class="guide-grid"><p><b>Move</b>WASD / arrows, click the field, or tap / hold direction buttons.</p><p><b>Strike · Space / Z</b>Tap and release to swing in your facing direction. Early swings are weak; power returns to 100% in 0.65 seconds. Hold after recovery to build charge up to the weapon tier; release once to strike. Be within 66 steps.</p><p><b>Magic · F / X</b>Targets the nearest foe within 250 steps. Ember burns; Tide slows; Gale interrupts. Costs 8 mana, recharges in 1.8 seconds.</p><p><b>Party · Q / 1–3</b>Switch your leader. Companions follow and fight. Fallen travelers are skipped.</p><p><b>Interact · E / Enter</b>Use the waystone or an arch when nearby. Heal and revive with H or a sunflask.</p><p><b>Rest & save</b>Waystones replenish everything. Mana also regenerates. Defeat returns you to your checkpoint.</p></div><p class="guide-tip">Calm each guardian to unlock the eastern arch. Amber circles warn before a strike. Keep moving!</p>`;
     buttons = '<button data-do="close" class="gold">Ready to travel →</button>';
   }
   if (kind === "commands") {
@@ -248,7 +253,7 @@ function update() {
     cards.innerHTML = game.party
       .map(
         (q, i) =>
-          `<button class="traveler" data-party="${i}" aria-label="Lead as ${q.name}"><span class="portrait" style="--hero:${q.color}"><span>✦</span></span><span class="traveler-info"><span class="traveler-heading"><strong>${q.name}</strong><small class="role"></small></span><span class="bar health"><i></i></span><span class="stats"></span><span class="bar mana"><i></i></span><span class="recovery"></span></span></button>`,
+          `<button class="traveler" data-party="${i}" aria-label="Lead as ${q.name}"><span class="portrait" style="--hero:${q.color}"><span>✦</span></span><span class="traveler-info"><span class="traveler-heading"><strong>${q.name}</strong><small class="role"></small></span><span class="bar health"><i></i></span><span class="stats"></span><span class="bar mana"><i></i></span><span class="bar power"><i></i></span><span class="recovery"></span></span></button>`,
       )
       .join("");
     cards.querySelectorAll<HTMLButtonElement>("button").forEach(
@@ -278,10 +283,17 @@ function update() {
       `${(q.mp / 36) * 100}%`;
     card.querySelector(".stats")!.textContent =
       `${Math.ceil(q.hp)} HP · ${Math.floor(q.mp)} MP`;
+    const charging =
+      i === game.leader && game.melee.held && !game.melee.canceled;
+    (card.querySelector(".power i") as HTMLElement).style.width =
+      `${charging && q.recovery <= 0 ? (game.melee.charge / game.weapon) * 100 : attackPower(q)}%`;
+    card
+      .querySelector(".power")!
+      .classList.toggle("charging", charging && q.recovery <= 0);
     card.querySelector(".recovery")!.textContent =
-      q.recovery > 0
-        ? `RECOVERING ${Math.ceil((1 - q.recovery / 0.65) * 100)}%`
-        : "STRIKE READY";
+      charging && q.recovery <= 0
+        ? `CHARGE ${Math.floor(game.melee.charge + 1e-8)} / ${game.weapon} · RELEASE TO STRIKE`
+        : `POWER ${attackPower(q)}% · ${q.recovery > 0 ? "RECOVERING" : "READY"}`;
   });
   $("magic").setAttribute("aria-label", `Cast ${p.element} magic`);
   $("narration").textContent =
@@ -289,7 +301,7 @@ function update() {
       ? game.message
       : game.area === 0
         ? "Walk east to the arch, then press E to begin. The waystone is always a safe place to return."
-        : "Stay close to your party. Step away from amber circles. Click to walk; hold Space to strike.";
+        : "Face your foe and release Space to strike. Wait for 100% power; hold longer to charge. Step away from amber circles.";
   const boss = game.enemies.find((e) => e.boss && e.hp > 0);
   $("bossbar").hidden = !boss;
   if (boss)
@@ -297,8 +309,16 @@ function update() {
       `<span>${boss.name} <small>PHASE ${boss.phase}</small></span><div><i style="width:${(boss.hp / boss.maxHp) * 100}%"></i></div>`;
   $("motion").textContent = `Reduced motion: ${reduced ? "on" : "off"}`;
 }
-$("strike").onclick = () => {
-  if (!paused) {
+function syncStrike() {
+  if (!paused)
+    setAttackHeld(
+      game,
+      keys.has(" ") || keys.has("z") || strikePointers.size > 0,
+    );
+}
+$("strike").onclick = (event) => {
+  // Keyboard Enter and assistive clicks still offer a single tap attack.
+  if (!paused && event.detail === 0) {
     attack(game);
     update();
   }
@@ -329,8 +349,16 @@ canvas.addEventListener("pointerdown", (e) => {
   };
   canvas.focus();
 });
-$("strike").addEventListener("pointerdown", () => {
-  if (!paused) heldStrike = true;
+$("strike").addEventListener("pointerdown", (event) => {
+  if (paused) return;
+  (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+  strikePointers.add(event.pointerId);
+  syncStrike();
+});
+$("strike").addEventListener("lostpointercapture", (event) => {
+  if (!strikePointers.delete(event.pointerId)) return;
+  cancelAttack(game);
+  syncStrike();
 });
 let moveStartedAt = 0;
 document
@@ -354,9 +382,10 @@ document
       };
     });
   });
-window.addEventListener("pointerup", () => {
+window.addEventListener("pointerup", (event) => {
   pointerMove = { dx: 0, dy: 0 };
-  heldStrike = false;
+  strikePointers.delete(event.pointerId);
+  syncStrike();
 });
 window.addEventListener("pointercancel", clearInput);
 window.addEventListener("keydown", (e) => {
@@ -387,6 +416,7 @@ window.addEventListener("keydown", (e) => {
     return;
   }
   if (paused) return;
+  if ((e.target as HTMLElement).tagName === "BUTTON" && key === "enter") return;
   if (
     [" ", "arrowup", "arrowdown", "arrowleft", "arrowright", "tab"].includes(
       key,
@@ -412,6 +442,7 @@ window.addEventListener("keydown", (e) => {
   )
     target = undefined;
   if (e.repeat) return;
+  if (key === " " || key === "z") syncStrike();
   if (key === "f" || key === "x") cast(game);
   if (key === "q") switchParty(game);
   if (["1", "2", "3"].includes(key)) switchParty(game, Number(key) - 1);
@@ -419,7 +450,10 @@ window.addEventListener("keydown", (e) => {
   if (key === "e" || key === "enter") interactNow();
   update();
 });
-window.addEventListener("keyup", (e) => keys.delete(e.key.toLowerCase()));
+window.addEventListener("keyup", (e) => {
+  keys.delete(e.key.toLowerCase());
+  if (e.key === " " || e.key.toLowerCase() === "z") syncStrike();
+});
 window.addEventListener("blur", () => {
   clearInput();
   if (!paused && game.mode === "play") open("commands");
@@ -476,7 +510,7 @@ function frame(now: number) {
         dx,
         dy,
         target,
-        attack: keys.has(" ") || keys.has("z") || heldStrike,
+        attack: keys.has(" ") || keys.has("z") || strikePointers.size > 0,
       });
       accumulator -= DT;
       const signature = game.cleared.join(",");

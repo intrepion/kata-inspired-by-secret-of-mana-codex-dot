@@ -129,7 +129,9 @@ export const AREAS: Area[] = [
       "The Warden: I sealed the roots so nothing could hurt them. Rowan: A closed heart cannot grow. Let us share the weight.",
   },
 ];
+export type MeleeInput = { held: boolean; canceled: boolean; charge: number };
 export type Game = {
+  melee: MeleeInput;
   version: 1;
   tactic: "fight" | "follow";
   area: number;
@@ -163,6 +165,7 @@ export type Input = {
 export function createGame(): Game {
   return {
     version: 1,
+    melee: { held: false, canceled: false, charge: 0 },
     tactic: "fight",
     area: 0,
     leader: 0,
@@ -256,6 +259,7 @@ export function enterArea(g: Game, area: number, back = false) {
   if (g.mode !== "play" || area < 0 || area >= AREAS.length) return false;
   if (area > g.area + 1 || (area > 1 && !g.cleared.includes(area - 1)))
     return false;
+  cancelAttack(g);
   g.encounters[g.area] = g.enemies;
   g.area = area;
   g.enemies =
@@ -285,6 +289,7 @@ function reward(g: Game, e: Enemy) {
     );
     if (g.area === 4) {
       g.mode = "victory";
+      cancelAttack(g);
       say(g, "The Heartroot blooms. The forest has learned to sing again.");
     }
   } else {
@@ -309,15 +314,54 @@ export function nearestEnemy(g: Game, p: Point, range: number) {
     .filter((e) => e.hp > 0 && distance(p, e) <= range)
     .sort((a, b) => distance(p, a) - distance(p, b))[0];
 }
-export function attack(g: Game, index = g.leader) {
+export function attackPower(p: Traveler) {
+  return Math.floor(
+    Math.max(0, Math.min(1, 1 - p.recovery / MELEE_RECOVERY)) * 100,
+  );
+}
+export function cancelAttack(g: Game) {
+  g.melee.charge = 0;
+  g.melee.canceled = g.melee.held;
+}
+export function setAttackHeld(g: Game, held: boolean) {
+  if (held === g.melee.held) return;
+  if (held) {
+    g.melee.held = true;
+    g.melee.canceled = g.mode !== "play";
+    g.melee.charge = 0;
+  } else {
+    const tier = Math.min(g.weapon, Math.floor(g.melee.charge + 1e-8));
+    const release = !g.melee.canceled;
+    g.melee = { held: false, canceled: false, charge: 0 };
+    if (release) attack(g, g.leader, tier);
+  }
+}
+export function attack(g: Game, index = g.leader, chargeTier = 0) {
   const p = g.party[index];
-  if (g.mode !== "play" || p.hp <= 0 || p.recovery > 0) return false;
+  if (g.mode !== "play" || !p || p.hp <= 0 || p.strike > 0) return false;
+  const power = Math.max(0, Math.min(1, 1 - p.recovery / MELEE_RECOVERY));
   p.recovery = MELEE_RECOVERY;
   p.strike = 0.2;
-  const e = nearestEnemy(g, p, 66);
+  const facingLength = Math.hypot(p.facing.x, p.facing.y) || 1;
+  const e = g.enemies
+    .filter((e) => {
+      const d = distance(p, e);
+      const dot =
+        d < 0.001
+          ? 1
+          : ((e.x - p.x) * p.facing.x + (e.y - p.y) * p.facing.y) /
+            (d * facingLength);
+      return e.hp > 0 && d <= 66 && dot >= 0.5 && clearLine(g.area, p, e);
+    })
+    .sort((a, b) => distance(p, a) - distance(p, b))[0];
   if (e) {
-    p.facing = { x: e.x - p.x, y: e.y - p.y };
-    damageEnemy(g, e, (index === 0 ? 22 : 18) + 7 * (g.weapon - 1));
+    const base = (index === 0 ? 22 : 18) + 7 * (g.weapon - 1);
+    const tier = Math.max(0, Math.min(g.weapon, chargeTier));
+    damageEnemy(
+      g,
+      e,
+      Math.max(1, Math.round(base * (0.2 + 0.8 * power) * (1 + tier * 0.65))),
+    );
   }
   effect(g, p, "slash");
   return true;
@@ -357,6 +401,7 @@ export function damageTraveler(g: Game, index: number, amount: number) {
   effect(g, p, "hurt", String(amount));
   if (!g.party.some((q) => q.hp > 0)) {
     g.mode = "defeat";
+    cancelAttack(g);
     say(g, "The lanterns dim, but their story is not over.");
   } else if (g.party[g.leader].hp <= 0) switchParty(g);
   return true;
@@ -369,6 +414,7 @@ export function switchParty(g: Game, index?: number) {
       : index;
   if (next === undefined || next < 0 || next > 2 || g.party[next].hp <= 0)
     return false;
+  cancelAttack(g);
   g.leader = next;
   return true;
 }
@@ -414,6 +460,7 @@ export function interact(g: Game) {
 export function retry(g: Game) {
   if (g.mode !== "defeat") return false;
   g.mode = "play";
+  g.melee = { held: false, canceled: false, charge: 0 };
   g.area = g.checkpoint;
   g.enemies = g.cleared.includes(g.area)
     ? []
@@ -528,10 +575,20 @@ export function step(g: Game, input: Input = {}) {
           effect(g, p, "gale");
         }
       }
-      if (e && distance(p, e) < 64) attack(g, i);
+      if (e && distance(p, e) < 64 && p.recovery <= 0) {
+        p.facing = { x: e.x - p.x, y: e.y - p.y };
+        attack(g, i);
+      }
     }
   }
-  if (input.attack) attack(g);
+  setAttackHeld(g, !!input.attack);
+  if (
+    g.melee.held &&
+    !g.melee.canceled &&
+    leader.recovery <= 0 &&
+    leader.hp > 0
+  )
+    g.melee.charge = Math.min(g.weapon, g.melee.charge + DT / MELEE_RECOVERY);
   for (const e of g.enemies) {
     if (e.hp <= 0) continue;
     e.flash = Math.max(0, e.flash - DT);
@@ -585,6 +642,7 @@ export function step(g: Game, input: Input = {}) {
 export function serialize(g: Game) {
   return JSON.stringify({
     ...g,
+    melee: { held: false, canceled: false, charge: 0 },
     encounters: { ...g.encounters, [g.area]: g.enemies },
     effects: [],
     messageTime: 0,
@@ -752,6 +810,7 @@ export function restore(raw: string): Game | undefined {
     }
     v.encounters[v.area] = v.enemies;
     if (v.mode === "play" && v.party[v.leader].hp <= 0) return;
+    v.melee = { held: false, canceled: false, charge: 0 };
     v.effects = [];
     v.messageTime = 3;
     return v;

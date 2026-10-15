@@ -68,11 +68,13 @@ test("melee range excludes distant targets and never damages a dead foe twice", 
   assert.equal(e.hp, hp);
   e.x = g.party[0].x + 40;
   g.party[0].recovery = 0;
+  g.party[0].strike = 0;
   e.hp = 1;
   attack(g);
   assert.equal(e.hp, 0);
   const count = g.rewarded.length;
   g.party[0].recovery = 0;
+  g.party[0].strike = 0;
   attack(g);
   assert.equal(g.rewarded.length, count);
 });
@@ -214,7 +216,7 @@ test("all routes and bosses are completable with legitimate melee equipment; rew
     while (!g.cleared.includes(area) && g.mode === "play" && steps++ < 3000) {
       const enemy = g.enemies.find((e) => e.hp > 0);
       if (!enemy) break;
-      step(g, { target: enemy, attack: true });
+      step(g, { target: enemy, attack: steps % 48 < 2 });
       if (g.party.some((p) => p.hp < 35) && g.flasks > 0) heal(g);
     }
     assert.equal(g.mode === "defeat", false, `area ${area}`);
@@ -265,8 +267,10 @@ test("backtracking and saves retain defeated enemies and wounds in visited areas
   enterArea(g, 1);
   assert.equal(g.enemies[0].hp, wounded);
   g.party[0].recovery = 0;
+  g.party[0].strike = 0;
   attack(g);
   g.party[0].recovery = 0;
+  g.party[0].strike = 0;
   attack(g);
   assert.equal(g.enemies[0].hp, 0);
   enterArea(g, 0, true);
@@ -300,4 +304,109 @@ test("malformed nonnumeric coordinates are rejected instead of breaking movement
   const bad = JSON.parse(serialize(c));
   bad.enemies[0].y = "288";
   assert.equal(restore(JSON.stringify(bad)), undefined);
+});
+
+import { setAttackHeld, cancelAttack, attackPower } from "../src/domain.ts";
+function meleeScenario() {
+  const g = createGame();
+  enterArea(g, 1);
+  g.tactic = "follow";
+  const p = g.party[0],
+    e = g.enemies[0];
+  e.x = p.x + 42;
+  e.y = p.y;
+  e.timer = 5;
+  g.enemies = [e];
+  return { g, p, e };
+}
+test("manual melee uses facing rather than turning to the nearest enemy", () => {
+  const { g, p, e } = meleeScenario();
+  p.facing = { x: -1, y: 0 };
+  const hp = e.hp;
+  attack(g);
+  assert.equal(e.hp, hp);
+  assert.deepEqual(p.facing, { x: -1, y: 0 });
+  ticks(g, 40);
+  p.facing = { x: 1, y: 0 };
+  attack(g);
+  assert.equal(e.hp, hp - 22);
+});
+test("early swings are weak and power recovers to a full directional strike", () => {
+  const { g, p, e } = meleeScenario();
+  e.hp = e.maxHp = 200;
+  attack(g);
+  assert.equal(e.hp, 178);
+  assert.equal(attackPower(p), 0);
+  ticks(g, 13);
+  const before = e.hp;
+  attack(g);
+  const weak = before - e.hp;
+  assert.ok(weak > 0 && weak < 22);
+  ticks(g, 40);
+  assert.equal(attackPower(p), 100);
+  const ready = e.hp;
+  attack(g);
+  assert.equal(ready - e.hp, 22);
+});
+test("holding does not repeat swings; releasing a full charge strikes once at its weapon cap", () => {
+  const { g, e } = meleeScenario();
+  e.hp = e.maxHp = 400;
+  const hp = e.hp;
+  ticks(g, 130, { attack: true });
+  assert.equal(e.hp, hp);
+  assert.equal(g.melee.charge, 1);
+  step(g, { attack: false });
+  const charged = hp - e.hp;
+  assert.ok(charged > 22);
+  ticks(g, 50, { attack: false });
+  assert.equal(hp - e.hp, charged);
+});
+test("pause cancellation and leader switch cancel held power until a fresh press", () => {
+  const { g, e } = meleeScenario();
+  const hp = e.hp;
+  ticks(g, 60, { attack: true });
+  cancelAttack(g);
+  step(g, { attack: false });
+  assert.equal(e.hp, hp);
+  ticks(g, 60, { attack: true });
+  switchParty(g, 1);
+  assert.equal(g.melee.charge, 0);
+  ticks(g, 30, { attack: true });
+  assert.equal(g.melee.charge, 0);
+  step(g, { attack: false });
+  assert.equal(e.hp, hp);
+  setAttackHeld(g, true);
+  assert.equal(g.melee.held, true);
+});
+test("old recovery saves restore unchanged progression with live held charge canceled", () => {
+  const g = createGame();
+  g.party[0].recovery = 0.4;
+  ticks(g, 60, { attack: true });
+  const copy = restore(serialize(g));
+  assert.ok(copy);
+  assert.equal(copy.melee.held, false);
+  assert.equal(copy.melee.charge, 0);
+  const old = JSON.parse(serialize(g));
+  delete old.melee;
+  old.party[0].recovery = 0.4;
+  const legacy = restore(JSON.stringify(old));
+  assert.ok(legacy);
+  assert.equal(legacy.party[0].recovery, 0.4);
+  assert.equal(legacy.melee.charge, 0);
+});
+test("charge stays bounded by weapon tier and a rapid press/release is one normal swing", () => {
+  const quick = meleeScenario();
+  const hp = quick.e.hp;
+  setAttackHeld(quick.g, true);
+  setAttackHeld(quick.g, false);
+  assert.equal(hp - quick.e.hp, 22);
+  setAttackHeld(quick.g, false);
+  assert.equal(hp - quick.e.hp, 22);
+  const charged = meleeScenario();
+  charged.g.weapon = 3;
+  charged.e.hp = charged.e.maxHp = 400;
+  ticks(charged.g, 300, { attack: true });
+  assert.equal(charged.g.melee.charge, 3);
+  step(charged.g, { attack: false });
+  assert.equal(charged.e.hp, 294);
 });

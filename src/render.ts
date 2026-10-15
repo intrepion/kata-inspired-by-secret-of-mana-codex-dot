@@ -274,11 +274,19 @@ function traveler(
     c.stroke();
     circle(c, 16, -29, 5, p.element === "tide" ? "#a2f4ed" : "#f0ddff");
   }
+  const facing = Math.atan2(p.facing.y, p.facing.x);
+  c.strokeStyle = "#fff0ba";
+  c.lineWidth = 2;
+  c.beginPath();
+  c.moveTo(Math.cos(facing) * 20, Math.sin(facing) * 20);
+  c.lineTo(Math.cos(facing) * 29, Math.sin(facing) * 29);
+  c.stroke();
   if (p.strike > 0) {
     c.strokeStyle = "#fff6cc";
     c.lineWidth = 5;
     c.beginPath();
-    c.arc(0, -2, 43, -1.1, 1.1);
+    const direction = Math.atan2(p.facing.y, p.facing.x);
+    c.arc(0, -2, 43, direction - Math.PI / 3, direction + Math.PI / 3);
     c.stroke();
   }
   c.restore();
