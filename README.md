@@ -50,3 +50,7 @@ npm audit --audit-level=high
 Strict TypeScript, 22 domain behavior tests, legitimate melee-only campaign simulation, private-repository GitHub Actions, and independent specification and standards reviews. See [QA evidence](docs/QA.md), [specification](docs/SPEC.md), [glossary](GLOSSARY.md) and [decisions](docs/adr/).
 
 All character art, environmental art, names, dialogue, area layouts and synthesized melody are original. Fonts are DM Sans and Fraunces from Google Fonts with local system fallbacks. No commercial game assets, network gameplay, purchases, accounts or public deployment. The game is deliberately a compact adventure rather than a large RPG; companions are simple followers with automatic recovery around terrain. Historical baseline browser QA used supported local Chrome, not hidden game-state mutation. Native acceptance of the new manual-charge correction remains unverified; see [current status](docs/MELEE_FIDELITY.md).
+
+## Play online
+
+[Play the hosted game](https://intrepion.github.io/kata-inspired-by-secret-of-mana-codex-dot/)
