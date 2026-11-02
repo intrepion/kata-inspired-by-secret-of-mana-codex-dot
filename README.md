@@ -54,3 +54,7 @@ All character art, environmental art, names, dialogue, area layouts and synthesi
 ## Play online
 
 [Play the hosted game](https://intrepion.github.io/kata-inspired-by-secret-of-mana-codex-dot/)
+
+## Arcade metadata
+
+See [docs/arcade-metadata.md](docs/arcade-metadata.md) for the game-owned manifest and screenshot provenance.

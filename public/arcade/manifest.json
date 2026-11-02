@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "gameId": "kata-inspired-by-secret-of-mana-codex-dot",
+  "playUrl": "https://intrepion.github.io/kata-inspired-by-secret-of-mana-codex-dot/",
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/view-01.jpg",
+      "sha256": "4a7ea886e40b566b76d534485af102eb8b583c201bbcd801838e73122c95b114",
+      "alt": "Gameplay capture 1",
+      "provenance": {
+        "kind": "existing_repository_capture",
+        "sourcePath": "qa/chrome-cinder-combat.jpg",
+        "deployedBuild": null,
+        "captureDate": null
+      }
+    },
+    {
+      "path": "arcade/screenshots/view-02.jpg",
+      "sha256": "e94e2e9cae1ec83f2c2e0db4688032c7ca444c5f8682b5a1e237ec3886df9048",
+      "alt": "Gameplay capture 2",
+      "provenance": {
+        "kind": "existing_repository_capture",
+        "sourcePath": "docs/qa/fidelity-2026-10-15/charge-release.jpg",
+        "deployedBuild": null,
+        "captureDate": null
+      }
+    }
+  ]
+}
