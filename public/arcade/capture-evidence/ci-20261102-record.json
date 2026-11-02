@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "workflowCommit": "e72ddc48b55bb69cd4d01560f0b2cd20775bc6e8",
+  "sourceCommit": "cf41bdd7a584cb90b60192a359bf395e1c901f2b",
+  "runId": "41415506689",
+  "url": "http://127.0.0.1:4243/",
+  "inputs": {
+    "index.html": "e4ae6075366d404a8803d94ca736da6397e4522df9914f6763582f79da33c713",
+    "lantern.svg": "29e0bccfe8ec692c1a4a617bc24eed9d08362f0cbdf3d4a73e58979000bdc9f8",
+    "assets/index-CH5wZjfX.js": "f0d9587ab862d2a9e9aea3293fd7161b484e6754243540930dd412f68a726c57",
+    "assets/index-D1xvRCAC.css": "1614936b83acf918bf403902a3d59482a3c57dc0ef01f876459ff2ae53a90ab4"
+  },
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1280,
+    "height": 1000
+  },
+  "screenshots": [
+    "wildheart-01.png",
+    "wildheart-02.png"
+  ]
+}

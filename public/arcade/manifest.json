@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "gameId": "kata-inspired-by-secret-of-mana-codex-dot",
   "playUrl": "https://intrepion.github.io/kata-inspired-by-secret-of-mana-codex-dot/",
   "screenshots": [
@@ -23,6 +23,48 @@
         "sourcePath": "docs/qa/fidelity-2026-10-15/charge-release.jpg",
         "deployedBuild": null,
         "captureDate": null
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-01.jpg",
+      "sha256": "ece4c7aaa728168669feefb11a96e468203e73389c5ad8f80f3301b2decfb668",
+      "alt": "Lanterns of the Wildheart gameplay, view 1",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-01.png",
+        "sourceSha256": "20d4167d2a329d9ea2526814334c291fb73abc2d8b195c109f50f5b9b07e51da",
+        "captureCommit": "cf41bdd7a584cb90b60192a359bf395e1c901f2b",
+        "workflowRunId": "41415506689",
+        "inputHashes": {
+          "index.html": "e4ae6075366d404a8803d94ca736da6397e4522df9914f6763582f79da33c713",
+          "lantern.svg": "29e0bccfe8ec692c1a4a617bc24eed9d08362f0cbdf3d4a73e58979000bdc9f8",
+          "assets/index-CH5wZjfX.js": "f0d9587ab862d2a9e9aea3293fd7161b484e6754243540930dd412f68a726c57",
+          "assets/index-D1xvRCAC.css": "1614936b83acf918bf403902a3d59482a3c57dc0ef01f876459ff2ae53a90ab4"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "21de9be0b9e1b06107d8e8a2443a6c336eec43e4ffaa700b648a1f342b85942b"
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-02.jpg",
+      "sha256": "8cc6cb811cd9c7337adc08634709557825f1e5b6d9e72e7da4c98506653be359",
+      "alt": "Lanterns of the Wildheart gameplay, view 2",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-02.png",
+        "sourceSha256": "2e7f53945e3630e48b18d72bcd1aeba58443dead2991726a09b57523139ec089",
+        "captureCommit": "cf41bdd7a584cb90b60192a359bf395e1c901f2b",
+        "workflowRunId": "41415506689",
+        "inputHashes": {
+          "index.html": "e4ae6075366d404a8803d94ca736da6397e4522df9914f6763582f79da33c713",
+          "lantern.svg": "29e0bccfe8ec692c1a4a617bc24eed9d08362f0cbdf3d4a73e58979000bdc9f8",
+          "assets/index-CH5wZjfX.js": "f0d9587ab862d2a9e9aea3293fd7161b484e6754243540930dd412f68a726c57",
+          "assets/index-D1xvRCAC.css": "1614936b83acf918bf403902a3d59482a3c57dc0ef01f876459ff2ae53a90ab4"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "21de9be0b9e1b06107d8e8a2443a6c336eec43e4ffaa700b648a1f342b85942b"
       }
     }
   ]
